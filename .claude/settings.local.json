@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__pencil__batch_get",
+      "mcp__pencil__get_screenshot",
+      "mcp__pencil__get_editor_state",
+      "Bash(npm install)",
+      "Bash(npx shadcn@latest init --yes --style new-york --base-color neutral --css-variables)",
+      "Bash(npx shadcn@latest init --help)",
+      "Bash(npx shadcn@latest init -y --base-color neutral --css-variables)",
+      "Bash(npx shadcn@latest add button card input badge separator -y)",
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); const Icon = l.Star; console.log\\(Icon.toString\\(\\).slice\\(0,500\\)\\)\")",
+      "Bash(python3:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)"
+    ]
+  }
+}

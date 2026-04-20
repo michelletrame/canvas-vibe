@@ -1,0 +1,381 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── Tailwind theme: wire up CSS variables ─────────────────────────────── */
+@theme inline {
+  /* Fonts */
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-heading: var(--font-heading), system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+
+  /* shadcn color bridge */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius scale */
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-2xl: calc(var(--radius) + 12px);
+  --radius-3xl: calc(var(--radius) + 16px);
+  --radius-4xl: calc(var(--radius) + 20px);
+
+  /* Card shadow — two-layer elevation from Pencil */
+  --shadow-card: 0 1px 2px 0 rgba(35,68,101,0.15), 0 2px 4px 1px rgba(35,68,101,0.15);
+
+  /* Modal shadow — deeper elevation from Pencil */
+  --shadow-modal: 0 4px 3.5px 0 rgba(35,68,101,0.15), 0 8px 10.5px 6px rgba(35,68,101,0.10);
+
+  /* Popover shadow — lighter elevation from Pencil */
+  --shadow-popover: 0 2px 2.625px 0 rgba(35,68,101,0.15), 0 6px 8.75px 4px rgba(35,68,101,0.10);
+}
+
+/* ─── Design tokens: rebrandLight ───────────────────────────────────────── */
+/* Source of truth: pencil-new.pen → Color (1996a) + Headings (8tkwK)       */
+:root {
+  /* Radius */
+  --radius: 0.25rem; /* 4px */
+
+  /* Backgrounds */
+  --background: #ffffff;          /* background.base */
+  --foreground: #334451;          /* text.base */
+
+  --card: #ffffff;                /* background.container */
+  --card-foreground: #334451;
+
+  --popover: #ffffff;
+  --popover-foreground: #334451;
+
+  /* Primary = blue interactive */
+  --primary: #2b7abc;             /* background.interactive.primary.base */
+  --primary-foreground: #ffffff;  /* text.onColor */
+
+  /* Secondary = grey interactive */
+  --secondary: #586874;           /* background.interactive.secondary.base */
+  --secondary-foreground: #ffffff; /* text.onColor */
+
+  /* Muted = page/muted bg */
+  --muted: #f2f4f4;               /* background.page */
+  --muted-foreground: #4a5b68;    /* text.muted */
+
+  /* Accent = subtle highlight (same as muted) */
+  --accent: #f2f4f4;
+  --accent-foreground: #334451;
+
+  /* Destructive */
+  --destructive: #e62429;         /* background.interactive.destructive.base */
+
+  /* Borders / inputs */
+  --border: #d7dade;              /* stroke.container */
+  --input: #d7dade;
+  --ring: #2b7abc;                /* stroke.focusRing */
+
+  /* Icon colors — from pencil-new.pen Icon (SCael) */
+  --icon-base: #273540;
+  --icon-muted: #586874;
+  --icon-on-color: #ffffff;
+  --icon-inverse: #ffffff;
+  --icon-accent-ash: #767676;
+  --icon-accent-aurora: #057c58;
+  --icon-accent-blue: #197eab;
+  --icon-accent-green: #048660;
+  --icon-accent-grey: #4e4e4e;
+  --icon-accent-honey: #8c6400;
+  --icon-accent-orange: #996e00;
+  --icon-accent-plum: #b43d89;
+  --icon-accent-red: #c54396;
+  --icon-accent-sea: #027887;
+  --icon-accent-sky: #17759f;
+  --icon-accent-violet: #944fb3;
+
+  /* Semantic extras (available as CSS variables for custom use) */
+  --color-bg-page: #f2f4f4;
+  --color-text-muted: #4a5b68;
+  --color-text-placeholder: #6a7883;
+  --color-text-disabled: #8d959f;
+  --color-stroke-base: #8d959f;
+  --color-stroke-muted: #e8eaec;
+  --color-success: #03893d;
+  --color-warning: #cf4a00;
+  --color-error: #e62429;
+  --color-info: #2b7abc;
+
+  /* Link tokens */
+  --link-text: #2369a4;
+  --link-text-hover: #1a5281;
+  --link-icon: #2b7abc;
+  --link-icon-hover: #09508c;
+  --link-oncolor-text-hover: #deebff;
+  --link-oncolor-icon-hover: #e0ebf5;
+  --color-ai-top: #9e58bd;
+  --color-ai-bottom: #00828e;
+
+  /* Button tokens — from Pencil Button Component (hrrjk) */
+  --btn-radius: 0.75rem;           /* 12px, distinct from global --radius: 4px */
+  --btn-disabled-bg: #dfe1e3;
+  --btn-disabled-text: #9ea6ad;
+
+  /* primary */
+  --btn-primary-bg: #1d354f;
+  --btn-primary-bg-hover: #234465;
+  --btn-primary-bg-active: #061c30;
+
+  /* secondary */
+  --btn-secondary-bg: #d5e2f6;
+  --btn-secondary-bg-hover: #e2eaf7;
+  --btn-secondary-bg-active: #b6ccea;
+  --btn-secondary-text: #1d354f;
+
+  /* tertiary */
+  --btn-tertiary-bg-hover: #eef4fd;
+  --btn-tertiary-bg-active: #e2eaf7;
+  --btn-tertiary-stroke: #86a8d5;
+  --btn-tertiary-stroke-active: #7097c7;
+  --btn-tertiary-stroke-disabled: #c7cacd;
+  --btn-tertiary-text-disabled: #aab0b5;
+
+  /* ghost */
+  --btn-ghost-text: #273540;
+
+  /* destructive primary */
+  --btn-destructive-bg: #cf1f24;
+  --btn-destructive-bg-hover: #e62429;
+  --btn-destructive-bg-active: #ae161b;
+
+  /* destructive secondary */
+  --btn-destructive-secondary-text: #cf1f24;
+  --btn-destructive-secondary-bg-hover: #fbf1ef;
+  --btn-destructive-secondary-bg-active: #ffe3de;
+
+  /* success primary */
+  --btn-success-bg: #037d37;
+  --btn-success-bg-hover: #03893d;
+  --btn-success-bg-active: #02672c;
+
+  /* success secondary */
+  --btn-success-secondary-text: #037d37;
+  --btn-success-secondary-bg-hover: #d8fceb;
+  --btn-success-secondary-bg-active: #c8f3df;
+
+  /* AI gradients */
+  --btn-ai-gradient: linear-gradient(195deg, #944fb3, #027887);
+  --btn-ai-gradient-hover: linear-gradient(195deg, #9e58bd, #00828e);
+  --btn-ai-gradient-active: linear-gradient(195deg, #793f93, #01626e);
+  --btn-ai-secondary-text: #944fb3;
+  --btn-ai-secondary-bg-hover: linear-gradient(195deg, #f3e5f7, #cff0f6);
+
+  /* onColor primary */
+  --btn-oncolor-primary-bg: #ffffff;
+  --btn-oncolor-primary-bg-hover: #d5e2f6;
+  --btn-oncolor-primary-bg-active: #b6ccea;
+  --btn-oncolor-primary-bg-disabled: #8d959f;
+  --btn-oncolor-primary-text: #1d354f;
+
+  /* onColor secondary */
+  --btn-oncolor-secondary-text: #ffffff;
+  --btn-oncolor-secondary-bg-hover: rgba(255, 255, 255, 0.10);
+
+  /* Modal tokens — from Pencil Modal component */
+  --modal-dark-bg: #273540;
+  --modal-dark-border: #334451;
+
+  /* Input tokens — from Pencil Text Input component */
+  --input-radius: 0.75rem;
+  --input-bg: #ffffff;
+  --input-bg-hover: #f2f4f5;
+  --input-bg-disabled: #e8eaec;
+  --input-bg-readonly: #c7cacd;
+  --input-border: #6a7883;
+  --input-border-hover: #576773;
+  --input-border-error: #cf1f24;
+  --input-border-success: #037d37;
+  --input-border-disabled: #c7cacd;
+  --input-border-readonly: #8d959f;
+  --input-placeholder: #576773;
+  --input-text-disabled: #8d959f;
+  --input-hint: #576773;
+  --input-label: #273540;
+
+  /* Chart / accent colors */
+  --chart-1: #197eab;             /* accent.color1 */
+  --chart-2: #048660;             /* accent.color2 */
+  --chart-3: #c54396;             /* accent.color3 */
+  --chart-4: #996e00;             /* accent.color4 */
+  --chart-5: #4e4e4e;             /* accent.color5 */
+
+  /* Sidebar (mirrors main theme) */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334451;
+  --sidebar-primary: #2b7abc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f2f4f4;
+  --sidebar-accent-foreground: #334451;
+  --sidebar-border: #d7dade;
+  --sidebar-ring: #2b7abc;
+  --sidebar-item-active: #1d354f;
+}
+
+/* ─── Base styles ───────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  /* Heading typeface — Inclusive Sans */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--foreground);
+  }
+
+  /* Typography scale from Pencil */
+  h1 { font-size: 2.5rem; }   /* 40px — titlePageDesktop */
+  h2 { font-size: 1.75rem; }  /* 28px — titleSection */
+  h3 { font-size: 1.5rem; }   /* 24px — titleModule */
+  h4 { font-size: 1.25rem; }  /* 20px — titleCardRegular */
+  h5 { font-size: 1rem; }     /* 16px — titleCardMini */
+  h6 { font-size: 1rem; }
+
+  /* Input placeholder */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-text-placeholder);
+  }
+}
+
+/* ─── Minimal scrollbars ─────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.28);
+}
+
+/* ─── No-scrollbar utility ──────────────────────────────────────────────── */
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* ─── Agent markdown prose styles ───────────────────────────────────────── */
+@layer components {
+  .agent-markdown ul {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+  }
+  .agent-markdown ol {
+    list-style-type: decimal;
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+  }
+  .agent-markdown li {
+    margin: 0.25rem 0;
+  }
+  .agent-markdown strong {
+    font-weight: 600;
+  }
+  .agent-markdown em {
+    font-style: italic;
+  }
+  .agent-markdown p {
+    margin: 0.5rem 0;
+  }
+  .agent-markdown p:first-child {
+    margin-top: 0;
+  }
+  .agent-markdown p:last-child {
+    margin-bottom: 0;
+  }
+  .agent-markdown h1, .agent-markdown h2, .agent-markdown h3,
+  .agent-markdown h4, .agent-markdown h5, .agent-markdown h6 {
+    font-weight: 600;
+    margin: 0.75rem 0 0.25rem;
+  }
+  .agent-markdown code {
+    font-family: ui-monospace, monospace;
+    font-size: 0.85em;
+    background: rgba(0,0,0,0.06);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+}
+
+/* ─── Button gradient helpers ────────────────────────────────────────────── */
+@layer components {
+  .btn-ai-primary {
+    background: var(--btn-ai-gradient);
+  }
+  .btn-ai-primary:hover:not(:disabled) {
+    background: var(--btn-ai-gradient-hover);
+  }
+  .btn-ai-primary:active:not(:disabled) {
+    background: var(--btn-ai-gradient-active);
+  }
+  .btn-ai-secondary:hover:not(:disabled) {
+    background: var(--btn-ai-secondary-bg-hover);
+  }
+  .btn-ai-secondary:active:not(:disabled) {
+    background: var(--btn-ai-secondary-bg-hover);
+  }
+}

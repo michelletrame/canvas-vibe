@@ -815,6 +815,7 @@ export default function CourseModulesPage() {
                 key={label}
                 className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-xl transition-colors hover:brightness-95"
                 style={{ background: "#d5e2f6", color: "#1d354f" }}
+                onClick={label === "Grades" ? () => window.location.assign("/prototypes/gradebook") : undefined}
               >
                 {label}
               </button>

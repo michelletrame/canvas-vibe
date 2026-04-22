@@ -55,6 +55,11 @@ const GROUPS: { label?: string; items: ProtoItem[] }[] = [
     label: "WIP",
     items: [
       {
+        title: "Gradebook",
+        description: "Simplified gradebook with click-to-expand inline grading interface — rubric scoring and student feedback without leaving the table.",
+        href: "/prototypes/gradebook",
+      },
+      {
         title: "Course Modules — Add Item Menus",
         description: "Interactive prototype of the Canvas Modules page with the Add Item dropdown and submenus (Add new item, Generate item) wired up.",
         href: "/prototypes/course-modules",

@@ -392,7 +392,53 @@ const STATUS_LABELS: Record<ScoreStatus, string> = {
   graded: "Graded", missing: "Missing", late: "Late", ungraded: "Not submitted",
 }
 
-// ── ScoreCell ──────────────────────────────────────────────────────────────────
+// ── ScoreBadge (compact pill-badge format) ────────────────────────────────────
+
+function ScoreBadge({ cell, onInfo }: { cell: CellData; onInfo: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  const hasSubmission = cell.status !== "missing" && (cell.status !== "ungraded" || !!cell.submittedAt)
+
+  let cls = ""
+  let label = ""
+
+  if (cell.status === "missing") {
+    cls = "bg-rose-50 text-rose-700 border-rose-200"; label = "Missing"
+  } else if (cell.status === "ungraded" && !cell.submittedAt) {
+    cls = "bg-slate-50 text-slate-400 border-slate-100"; label = "—"
+  } else if (cell.status === "ungraded") {
+    cls = "bg-slate-100 text-slate-600 border-slate-200"; label = "Needs grading"
+  } else if (cell.status === "late") {
+    cls = "bg-amber-50 text-amber-800 border-amber-200"
+    label = `${cell.score}/${cell.max} Late`
+  } else {
+    const p = pct(cell.score!, cell.max)
+    cls = p >= 70 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200"
+    label = `${cell.score}/${cell.max}`
+  }
+
+  return (
+    <div
+      className="flex items-center gap-1.5"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span className={`inline-flex items-center px-2 h-5 text-[11px] font-medium rounded-full border whitespace-nowrap ${cls}`}>
+        {label}
+      </span>
+      <button
+        type="button"
+        title="Grade details"
+        className="p-0.5 rounded text-[#8d959f] hover:text-[#576773] outline-none transition-colors"
+        style={{ visibility: hasSubmission && hovered ? "visible" : "hidden" }}
+        onClick={(e) => { e.stopPropagation(); onInfo() }}
+      >
+        <Info size={11} strokeWidth={1.75} />
+      </button>
+    </div>
+  )
+}
+
+// ── ScoreCell (kept for reference) ────────────────────────────────────────────
 
 function ScoreCell({
   cell, isExpanded, onOpen, onInfo,
@@ -1042,145 +1088,115 @@ export default function GradebookPage() {
 
         {/* Table */}
         <div className="rounded-2xl border border-[var(--border)] bg-white overflow-x-auto shadow-[var(--shadow-card)]">
-
-          {/* Column headers */}
-          <div className="flex items-center gap-4 px-4 py-3 border-b border-[var(--border)]" style={{ background: "#f5f7f8" }}>
-            <div className="shrink-0" style={{ minWidth: 200 }}>
-              <span className="text-xs font-bold text-[#8d959f] uppercase tracking-wide">Student</span>
-            </div>
-            {ASSIGNMENTS.map(a => (
-              <div key={a.id} className="flex-1 min-w-[110px]">
-                <button type="button" className="w-full text-center outline-none group" onClick={() => {}}>
-                  <span className="block text-xs font-bold text-[var(--btn-primary-bg)] group-hover:underline">{a.name}</span>
-                  {a.pastDue ? (
-                    <>
-                      <span className="block text-xs text-[#8d959f] mt-0.5">{a.dueLabel}</span>
-                      <div className="mt-1 flex justify-center">
-                        {a.needsGradingCount > 0
-                          ? <Pill color="warning" status={`${a.needsGradingCount} need grading`} />
-                          : <Pill color="success" status="All graded" />
-                        }
-                      </div>
-                    </>
-                  ) : (
-                    <span className="block text-xs text-[#8d959f] mt-0.5">{a.dueLabel}</span>
-                  )}
-                </button>
-              </div>
-            ))}
-            <div className="shrink-0 text-center sticky right-0" style={{ minWidth: 80, background: "#f5f7f8", boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}>
-              <span className="text-xs font-bold text-[#8d959f] uppercase tracking-wide">Grade</span>
-            </div>
-          </div>
-
-          {/* Student rows + inline expanded rows */}
-          {filtered.map(student => {
-            const isAtRisk   = AT_RISK.some(s => s.id === student.id)
-            const isExpanded = expandedCell?.studentId === student.id
-
-            return (
-              <Fragment key={student.id}>
-
-                {/* Student row */}
-                <div
-                  className="flex items-center gap-4 px-4 py-3 border-b border-[var(--border)]"
-                  style={{
-                    background: isAtRisk && !isExpanded ? "#fffbeb" : "#fff",
-                    borderLeft: isExpanded ? "3px solid #4338CA" : "3px solid transparent",
-                  }}
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b border-[var(--border)]" style={{ background: "#f5f7f8" }}>
+                <th
+                  className="sticky left-0 z-20 px-5 py-3 text-xs font-semibold text-[#8d959f] uppercase tracking-wide border-r border-[var(--border)]"
+                  style={{ background: "#f5f7f8", minWidth: 220 }}
                 >
-                  <div className="shrink-0 flex items-center gap-2" style={{ minWidth: 200 }}>
-                    <Avatar initials={initials(student.name)} size="xSmall" inverse />
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[#273540]">{student.name}</p>
-                      {isAtRisk && !isExpanded && (
+                  Student
+                </th>
+                {ASSIGNMENTS.map(a => (
+                  <th key={a.id} className="px-4 py-3" style={{ background: "#f5f7f8", minWidth: 160 }}>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-xs font-semibold text-[var(--btn-primary-bg)]">{a.name}</span>
+                      <span className="text-xs text-[#8d959f]">{a.dueLabel} · {a.pts} pts</span>
+                      {a.pastDue && (
                         <div className="mt-0.5">
-                          <Pill color="warning" status="At risk" />
+                          {a.needsGradingCount > 0
+                            ? <Pill color="warning" status={`${a.needsGradingCount} need grading`} />
+                            : <Pill color="success" status="All graded" />
+                          }
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  {student.cells.map((_, cIdx) => {
-                    const cell         = getCell(student, cIdx)
-                    const cellExpanded = isExpanded && expandedCell?.assignmentIdx === cIdx
-                    return (
-                      <div key={cIdx} className="flex-1 min-w-[110px]">
-                        <ScoreCell
-                          cell={cell}
-                          isExpanded={cellExpanded}
-                          onOpen={() => openCell(student.id, cIdx)}
+                  </th>
+                ))}
+                <th
+                  className="sticky right-0 z-20 px-4 py-3 text-xs font-semibold text-[#8d959f] uppercase tracking-wide text-center"
+                  style={{ background: "#f5f7f8", minWidth: 80, boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}
+                >
+                  Grade
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(student => {
+                const isAtRisk = AT_RISK.some(s => s.id === student.id)
+                const rowBg = isAtRisk ? "#fffbeb" : "#fff"
+                return (
+                  <tr key={student.id} className="border-b border-[var(--border)]" style={{ background: rowBg }}>
+                    <td
+                      className="sticky left-0 px-5 py-2.5 border-r border-[var(--border)]"
+                      style={{ background: rowBg, minWidth: 220 }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar initials={initials(student.name)} size="xSmall" inverse />
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-[#273540] leading-tight">{student.name}</p>
+                          <div className="mt-0.5">
+                            {isAtRisk
+                              ? <Pill color="warning" status="At risk" />
+                              : <Pill color="success" status="On track" />
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    {student.cells.map((_, cIdx) => (
+                      <td key={cIdx} className="px-4 py-2.5">
+                        <ScoreBadge
+                          cell={getCell(student, cIdx)}
                           onInfo={() => setInfoTray({ studentId: student.id, assignmentIdx: cIdx })}
                         />
-                      </div>
-                    )
-                  })}
+                      </td>
+                    ))}
+                    <td
+                      className="sticky right-0 px-4 py-2.5 text-center"
+                      style={{ background: rowBg, minWidth: 80, boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}
+                    >
+                      <span className="font-bold text-lg" style={{ color: GRADE_COLORS[student.currentGrade] ?? "#475569" }}>
+                        {student.currentGrade}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
 
-                  <div className="shrink-0 text-center sticky right-0" style={{ minWidth: 80, background: isAtRisk && !isExpanded ? "#fffbeb" : "#fff", boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}>
-                    <span className="font-bold text-lg" style={{ color: GRADE_COLORS[student.currentGrade] ?? "#475569" }}>
-                      {student.currentGrade}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Inline grading panel */}
-                {isExpanded && (() => {
-                  const xIdx      = expandedCell!.assignmentIdx
-                  const cellKey   = `${student.id}_${xIdx}`
-                  const xCell     = getCell(student, xIdx)
-                  const xRubric   = rubricStates[cellKey] ?? RUBRIC_TEMPLATE.map(c => ({ ...c, selectedLevel: undefined as number | undefined }))
-                  const xComments = cellComments[cellKey] ?? []
-                  const xFeedback = pendingText[cellKey] ?? ""
+              {/* Class average row */}
+              <tr>
+                <td
+                  className="sticky left-0 px-5 py-3 border-r border-[var(--border)]"
+                  style={{ background: "#f5f7f8", minWidth: 220 }}
+                >
+                  <span className="text-sm font-semibold text-[#8d959f]">Class Average</span>
+                </td>
+                {ASSIGNMENTS.map((a, aIdx) => {
+                  const gradedCells = STUDENTS
+                    .map(s => getCell(s, aIdx))
+                    .filter(c => c.status === "graded" && c.score !== undefined)
+                  const avg = gradedCells.length > 0
+                    ? Math.round(gradedCells.reduce((s, c) => s + c.score!, 0) / gradedCells.length)
+                    : null
+                  const avgCell: CellData = avg !== null
+                    ? { score: avg, max: a.pts, status: "graded" }
+                    : { max: a.pts, status: "ungraded" }
                   return (
-                    <ExpandedRow
-                      student={student}
-                      assignmentIdx={xIdx}
-                      cell={xCell}
-                      rubric={xRubric}
-                      comments={xComments}
-                      feedbackText={xFeedback}
-                      onSelectLevel={(criterionId, levelIdx) => selectLevel(cellKey, criterionId, levelIdx)}
-                      onSaveGrade={() => saveGrade(student.id, xIdx)}
-                      onClose={() => setExpandedCell(null)}
-                      onFeedbackChange={text => setPendingText(prev => ({ ...prev, [cellKey]: text }))}
-                      onSendFeedback={() => sendComment(student.id, xIdx)}
-                    />
+                    <td key={a.id} className="px-4 py-3" style={{ background: "#f5f7f8" }}>
+                      <ScoreBadge cell={avgCell} onInfo={() => {}} />
+                    </td>
                   )
-                })()}
-
-              </Fragment>
-            )
-          })}
-
-          {/* Class average row */}
-          <div className="flex items-center gap-4 px-4 py-3 rounded-b-2xl" style={{ background: "#f5f7f8" }}>
-            <div className="shrink-0" style={{ minWidth: 200 }}>
-              <span className="text-sm font-semibold text-[#8d959f]">Class Average</span>
-            </div>
-            {ASSIGNMENTS.map((a, aIdx) => {
-              const gradedCells = STUDENTS
-                .map(s => getCell(s, aIdx))
-                .filter(c => c.status === "graded" && c.score !== undefined)
-              const avg = gradedCells.length > 0
-                ? Math.round(gradedCells.reduce((s, c) => s + c.score!, 0) / gradedCells.length)
-                : null
-              const avgCell: CellData = avg !== null
-                ? { score: avg, max: a.pts, status: "graded" }
-                : { max: a.pts, status: "ungraded" }
-              const { bg, textColor, label } = cellStyle(avgCell)
-              return (
-                <div key={a.id} className="flex-1 min-w-[110px]">
-                  <div className="rounded-lg px-2 py-1.5 text-center" style={{ backgroundColor: bg }}>
-                    <span className="text-sm font-bold" style={{ color: textColor }}>{label}</span>
-                  </div>
-                </div>
-              )
-            })}
-            <div className="shrink-0 text-center sticky right-0" style={{ minWidth: 80, background: "#f5f7f8", boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}>
-              <span className="font-bold text-sm text-[#576773]">C+</span>
-            </div>
-          </div>
-
+                })}
+                <td
+                  className="sticky right-0 px-4 py-3 text-center"
+                  style={{ background: "#f5f7f8", minWidth: 80, boxShadow: "-4px 0 8px rgba(0,0,0,0.06)" }}
+                >
+                  <span className="font-bold text-sm text-[#576773]">C+</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* Legend toggle */}
@@ -1195,12 +1211,11 @@ export default function GradebookPage() {
           {legendOpen && (
             <div className="mt-2 flex flex-wrap gap-4">
               {[
-                { bg: "#D1FAE5", color: "#059669", label: "A (≥ 90%)" },
-                { bg: "#FEF9C3", color: "#CA8A04", label: "B / C (70–89%)" },
-                { bg: "#FEE2E2", color: "#DC2626", label: "D / F (< 70%)" },
-                { bg: "#FEF0E8", color: "#C2410C", label: "Late submission" },
-                { bg: "#FEE2E2", color: "#DC2626", label: "Missing" },
-                { bg: "#F8FAFC", color: "#94A3B8", label: "Not yet graded" },
+                { bg: "#ECFDF5", color: "#059669", label: "Graded ≥ 70%" },
+                { bg: "#FEE2E2", color: "#B91C1C", label: "Graded < 70% / Missing" },
+                { bg: "#FEF3C7", color: "#92400E", label: "Late submission" },
+                { bg: "#F1F5F9", color: "#475569", label: "Needs grading (submitted)" },
+                { bg: "#F8FAFC", color: "#94A3B8", label: "Not submitted" },
               ].map(item => (
                 <div key={item.label} className="flex items-center gap-1.5">
                   <span
